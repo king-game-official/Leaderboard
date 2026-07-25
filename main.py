@@ -70,5 +70,24 @@ def get_leaderboard():
     result = [{'player': doc['player'], 'score': doc['score']} for doc in top]
     return jsonify(result)
 
+# ---------- УДАЛЕНИЕ ИГРОКА (ТОЛЬКО ДЛЯ АДМИНА) ----------
+@app.route('/player', methods=['DELETE'])
+def delete_player():
+    # Проверяем API-ключ (тот же, что и для POST)
+    key = request.headers.get('X-API-Key')
+    if not key or key != SECRET_KEY:
+        abort(401, description='Invalid API key')
+    
+    data = request.get_json()
+    player = data.get('player')
+    if not player:
+        return jsonify({'error': 'Missing player name'}), 400
+    
+    result = scores.delete_one({'player': player})
+    if result.deleted_count == 0:
+        return jsonify({'error': 'Player not found'}), 404
+    else:
+        return jsonify({'message': f'Player {player} deleted successfully'})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
