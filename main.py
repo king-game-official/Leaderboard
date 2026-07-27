@@ -63,6 +63,28 @@ def save_score():
         })
         return jsonify({'message': 'Record created', 'new_record': True})
 
+@app.route('/', methods=['GET'])
+def home():
+    # Получаем общее количество игроков
+    total_players = scores.count_documents({})
+    
+    # Получаем топ-3 игроков
+    top_players = scores.find().sort('score', -1).limit(3)
+    top_list = [{'player': doc['player'], 'score': doc['score']} for doc in top_players]
+    
+    # Возвращаем красивую JSON-статистику
+    return jsonify({
+        'service': 'Leaderboard API',
+        'status': 'online',
+        'total_players': total_players,
+        'top_players': top_list,
+        'endpoints': {
+            'leaderboard': '/leaderboard',
+            'send_score': '/score (POST)',
+            'delete_player': '/player (DELETE)'
+        }
+    })
+
 # ---------- ПОЛУЧЕНИЕ ----------
 @app.route('/leaderboard', methods=['GET'])
 def get_leaderboard():
