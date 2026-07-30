@@ -41,9 +41,6 @@ def save_score():
     except:
         return jsonify({'error': 'Score must be integer'}), 400
     
-    if score < 0 or score > 9999999:
-        return jsonify({'error': 'Score out of range'}), 400
-
     record = scores.find_one({'player': player})
     if record:
         if score > record['score']:
